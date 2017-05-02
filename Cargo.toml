@@ -1,0 +1,8 @@
+[package]
+name = "lz_fnv"
+version = "0.1.0"
+authors = ["Luke Horsley <luke.horsley@offset1337.co.uk>"]
+
+[dependencies]
+extprim = "1.2.2"
+extprim_literals = "2.0.0"
