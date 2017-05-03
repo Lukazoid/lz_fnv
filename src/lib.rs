@@ -19,16 +19,16 @@ impl Default for Fnv128a {
 const prime: u128 = u128!(0x0000000001000000000000000000013B);
 
 impl Fnv128a {
-    fn new(key: u128) -> Self {
+    pub fn new(key: u128) -> Self {
         Self {
             hash: key
         }
     }
-    fn finish(&self) -> u128 {
+    pub fn finish(&self) -> u128 {
         self.hash
     }
 
-    fn write(&mut self, bytes: &[u8]) {
+    pub fn write(&mut self, bytes: &[u8]) {
         let mut hash = self.hash;
 
         for byte in bytes {
