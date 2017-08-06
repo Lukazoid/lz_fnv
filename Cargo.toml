@@ -8,6 +8,9 @@ keywords = ["FNV", "Hash", "Fowler-Noll-Vo"]
 categories = ["algorithms"]
 license = "MIT"
 
+[badges]
+travis-ci = { repository = "Lukazoid/lz_fnv" }
+
 [dependencies]
 extprim = { version = "1.4.0", optional = true }
 extprim_literals = { version = "2.0.0", optional = true }
