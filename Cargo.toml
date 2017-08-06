@@ -2,6 +2,11 @@
 name = "lz_fnv"
 version = "0.1.0"
 authors = ["Luke Horsley <luke.horsley@offset1337.co.uk>"]
+description = "Fowler-Noll-Vo hash functions for various integer types"
+repository = "https://github.com/lukazoid/lz_fnv"
+keywords = ["FNV", "Hash", "Fowler-Noll-Vo"]
+categories = ["algorithms"]
+license = "MIT"
 
 [dependencies]
 extprim = { version = "1.4.0", optional = true }
