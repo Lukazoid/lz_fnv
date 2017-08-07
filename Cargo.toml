@@ -1,6 +1,6 @@
 [package]
 name = "lz_fnv"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Luke Horsley <luke.horsley@offset1337.co.uk>"]
 description = "Fowler-Noll-Vo hash functions for various integer types"
 repository = "https://github.com/lukazoid/lz_fnv"
