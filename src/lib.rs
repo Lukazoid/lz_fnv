@@ -114,8 +114,8 @@ macro_rules! fnv0_impl {
                 let mut hash = self.hash;
 
                 for byte in bytes {
-                    hash ^= ($from_byte)(*byte);
                     hash = hash.wrapping_mul($prime);
+                    hash ^= ($from_byte)(*byte);
                 }
 
                 self.hash = hash;
@@ -243,10 +243,32 @@ fnv_impl!(u128, 0x6C62272E07BB014262B821756295C58Du128, 0x0000000001000000000000
 
 #[cfg(test)]
 mod tests {
-    use {Fnv1a, FnvHasher};
+    use {Fnv0, Fnv1a, FnvHasher};
 
     #[cfg(feature = "u128")]
     use extprim::u128::u128;
+
+    #[test]
+    fn fnv0_32_prime_calculation() {
+        let mut fnv0 = Fnv0::<u32>::new();
+
+        fnv0.write(b"chongo <Landon Curt Noll> /\\../\\");
+
+        let result = fnv0.finish();
+
+        assert_eq!(result, 0x811c9dc5);
+    }
+
+    #[test]
+    fn fnv0_64_prime_calculation() {
+        let mut fnv0 = Fnv0::<u64>::new();
+
+        fnv0.write(b"chongo <Landon Curt Noll> /\\../\\");
+
+        let result = fnv0.finish();
+
+        assert_eq!(result, 0xcbf29ce484222325);
+    }
 
     #[cfg(feature = "u128")]
     #[test]
