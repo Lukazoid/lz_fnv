@@ -244,6 +244,7 @@ fnv_impl!(u128, 0x6C62272E07BB014262B821756295C58Du128, 0x0000000001000000000000
 #[cfg(test)]
 mod tests {
     use {Fnv0, Fnv1, Fnv1a, FnvHasher};
+    use std::iter;
 
     macro_rules! fnv0_tests {
         ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
@@ -295,6 +296,10 @@ mod tests {
         };
     }
     
+    fn repeat(slice: &[u8], times: usize) -> Vec<u8> {
+        iter::repeat(slice).take(times).flat_map(|x|x).cloned().collect()
+    }
+
     include!("fnv_test_cases.rs");
 
     #[cfg(feature = "u128")]
