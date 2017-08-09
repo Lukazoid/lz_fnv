@@ -243,51 +243,67 @@ fnv_impl!(u128, 0x6C62272E07BB014262B821756295C58Du128, 0x0000000001000000000000
 
 #[cfg(test)]
 mod tests {
-    use {Fnv0, Fnv1a, FnvHasher};
+    use {Fnv0, Fnv1, Fnv1a, FnvHasher};
 
-    #[cfg(feature = "u128")]
-    use extprim::u128::u128;
+    macro_rules! fnv0_tests {
+        ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let mut fnv0 = Fnv0::<$size>::new();
 
-    #[test]
-    fn fnv0_32_prime_calculation() {
-        let mut fnv0 = Fnv0::<u32>::new();
+                    fnv0.write($input);
 
-        fnv0.write(b"chongo <Landon Curt Noll> /\\../\\");
+                    let result = fnv0.finish();
 
-        let result = fnv0.finish();
-
-        assert_eq!(result, 0x811c9dc5);
+                    assert_eq!(result, $expected_hash);
+                }
+            )*
+        };
     }
 
-    #[test]
-    fn fnv0_64_prime_calculation() {
-        let mut fnv0 = Fnv0::<u64>::new();
+    macro_rules! fnv1_tests {
+        ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let mut fnv1 = Fnv1::<$size>::new();
 
-        fnv0.write(b"chongo <Landon Curt Noll> /\\../\\");
+                    fnv1.write($input);
 
-        let result = fnv0.finish();
+                    let result = fnv1.finish();
 
-        assert_eq!(result, 0xcbf29ce484222325);
+                    assert_eq!(result, $expected_hash);
+                }
+            )*
+        };
     }
+    macro_rules! fnv1a_tests {
+        ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let mut fnv1a = Fnv1a::<$size>::new();
+
+                    fnv1a.write($input);
+
+                    let result = fnv1a.finish();
+
+                    assert_eq!(result, $expected_hash);
+                }
+            )*
+        };
+    }
+    
+    include!("fnv_test_cases.rs");
 
     #[cfg(feature = "u128")]
-    #[test]
-    fn empty_hash() {
-        let fnv128a = Fnv1a::<u128>::default();
-
-        let hash = fnv128a.finish();
-
-        assert_eq!(hash, u128!(0x6C62272E07BB014262B821756295C58D));
+    fnv0_tests!{
+        fnv0_offset_calculation_extprim_128_bit: ::extprim::u128::u128, b"chongo <Landon Curt Noll> /\\../\\", u128!(0x6C62272E07BB014262B821756295C58D),
     }
 
-    #[cfg(feature = "u128")]
-    #[test]
-    fn test_hash() {
-        let mut fnv128a = Fnv1a::<u128>::default();
-        fnv128a.write(b"foobar");
-
-        let hash = fnv128a.finish();
-
-        assert_eq!(hash, u128!(0x343e1662793c64bf6f0d3597ba446f18));
+    #[cfg(feature = "nightly")]
+    fnv0_tests!{
+        fnv0_offset_calculation_128_bit: u128, b"chongo <Landon Curt Noll> /\\../\\", 0x6C62272E07BB014262B821756295C58D,
     }
 }
