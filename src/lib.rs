@@ -4,14 +4,14 @@
 extern crate extprim;
 
 #[cfg(feature = "extprim_literals")]
-#[macro_use] extern crate extprim_literals;
+#[macro_use]
+extern crate extprim_literals;
 
 /// A trait for all Fowler-Noll-Vo hash implementations.
 ///
 /// This matches the `std::hash::Hasher` definition but for multiple hash
 /// types.
 pub trait FnvHasher {
-
     /// The type of the hash.
     type Hash;
 
@@ -27,23 +27,23 @@ pub trait FnvHasher {
 /// This is deprecated except for computing the FNV offset basis for FNV-1 and
 /// FNV-1a hashes.
 #[derive(Debug, Default)]
-pub struct Fnv0<T>{
-    hash: T
+pub struct Fnv0<T> {
+    hash: T,
 }
 
 /// The FNV-1 hash.
 #[derive(Debug)]
 pub struct Fnv1<T> {
-    hash: T
+    hash: T,
 }
 
 /// The FNV-1a hash.
 #[derive(Debug)]
 pub struct Fnv1a<T> {
-    hash: T
+    hash: T,
 }
 
-impl<T : Default> Fnv0<T> {
+impl<T: Default> Fnv0<T> {
     /// Creates a new `Fnv0<T>`.
     ///
     /// ```
@@ -65,9 +65,7 @@ impl<T> Fnv0<T> {
     /// let fnv_hasher = Fnv0::with_key(872u32);
     /// ```
     pub fn with_key(key: T) -> Self {
-        Self {
-            hash: key
-        }
+        Self { hash: key }
     }
 }
 
@@ -80,9 +78,7 @@ impl<T> Fnv1<T> {
     /// let fnv_hasher = Fnv1::with_key(872u32);
     /// ```
     pub fn with_key(key: T) -> Self {
-        Self {
-            hash: key
-        }
+        Self { hash: key }
     }
 }
 
@@ -95,14 +91,12 @@ impl<T> Fnv1a<T> {
     /// let fnv_hasher = Fnv1a::with_key(872u32);
     /// ```
     pub fn with_key(key: T) -> Self {
-        Self {
-            hash: key
-        }
+        Self { hash: key }
     }
 }
 
 macro_rules! fnv0_impl {
-    ($type: ty, $prime: expr, $from_byte: expr) => {
+    ($type: ty, $prime: expr, $from_byte: ident) => {
         impl FnvHasher for Fnv0<$type> {
             type Hash = $type;
 
@@ -124,8 +118,8 @@ macro_rules! fnv0_impl {
     }
 }
 
-macro_rules! fnv1_impl { 
-    ($type: ty, $offset: expr, $prime: expr, $from_byte: expr) => {
+macro_rules! fnv1_impl {
+    ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1<$type> {
             fn default() -> Self {
                 Self {
@@ -158,12 +152,12 @@ macro_rules! fnv1_impl {
 
                 self.hash = hash;
             }
-        }        
+        }
     }
 }
 
-macro_rules! fnv1a_impl { 
-    ($type: ty, $offset: expr, $prime: expr, $from_byte: expr) => {
+macro_rules! fnv1a_impl {
+    ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1a<$type> {
             fn default() -> Self {
                 Self {
@@ -197,7 +191,7 @@ macro_rules! fnv1a_impl {
                 self.hash = hash;
             }
         }
-        
+
     }
 }
 
@@ -214,32 +208,60 @@ macro_rules! fnv_hasher_impl {
         }
     }
 }
-macro_rules! fnv_impl {  
-    (u64, $offset: expr, $prime: expr, $from_byte: expr) => {        
+macro_rules! fnv_impl {
+    (u64, $offset: expr, $prime: expr, $from_byte: ident) => {
         fnv0_impl!(u64, $prime, $from_byte);
         fnv_hasher_impl!(Fnv0<u64>);
 
         fnv1_impl!(u64, $offset, $prime, $from_byte);
         fnv_hasher_impl!(Fnv1<u64>);
 
-        fnv1a_impl!(u64, $offset, $prime, $from_byte); 
+        fnv1a_impl!(u64, $offset, $prime, $from_byte);
         fnv_hasher_impl!(Fnv1a<u64>);
     };
-    ($type: ty, $offset: expr, $prime: expr, $from_byte: expr) => {
+    ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         fnv0_impl!($type, $prime, $from_byte);
         fnv1_impl!($type, $offset, $prime, $from_byte);
         fnv1a_impl!($type, $offset, $prime, $from_byte);
     };
 }
 
-fnv_impl!(u32, 0x811c9dc5, 0x1000193, |byte| byte as u32);
-fnv_impl!(u64, 0xcbf29ce484222325, 0x100000001B3, |byte| byte as u64);
+fn u32_from_byte(byte: u8) -> u32 {
+    byte.into()
+}
+
+fn u64_from_byte(byte: u8) -> u64 {
+    byte.into()
+}
+
+fnv_impl!(u32, 0x811c_9dc5, 0x100_0193, u32_from_byte);
+fnv_impl!(u64, 0xcbf2_9ce4_8422_2325, 0x100_0000_01B3, u64_from_byte);
 
 #[cfg(feature = "u128")]
-fnv_impl!(extprim::u128::u128, u128!(0x6C62272E07BB014262B821756295C58D), u128!(0x0000000001000000000000000000013B), |byte| extprim::u128::u128::new(byte as u64));
+fn extprim_u128_from_byte(byte: u8) -> extprim::u128::u128 {
+    extprim::u128::u128::new(u64::from(byte))
+}
+
+#[cfg(feature = "u128")]
+fnv_impl!(
+    extprim::u128::u128,
+    u128!(0x6C62272E07BB014262B821756295C58D),
+    u128!(0x0000000001000000000000000000013B),
+    extprim_u128_from_byte
+);
 
 #[cfg(feature = "nightly")]
-fnv_impl!(u128, 0x6C62272E07BB014262B821756295C58Du128, 0x0000000001000000000000000000013Bu128, |byte| byte as u128);
+fn core_u128_from_byte(byte: u8) -> u128 {
+    byte.into()
+}
+
+#[cfg(feature = "nightly")]
+fnv_impl!(
+    u128,
+    0x6C62272E07BB014262B821756295C58Du128,
+    0x0000000001000000000000000000013Bu128,
+    core_u128_from_byte
+);
 
 #[cfg(test)]
 mod tests {
@@ -295,9 +317,13 @@ mod tests {
             )*
         };
     }
-    
+
     fn repeat(slice: &[u8], times: usize) -> Vec<u8> {
-        iter::repeat(slice).take(times).flat_map(|x|x).cloned().collect()
+        iter::repeat(slice)
+            .take(times)
+            .flat_map(|x| x)
+            .cloned()
+            .collect()
     }
 
     include!("fnv_test_cases.rs");
