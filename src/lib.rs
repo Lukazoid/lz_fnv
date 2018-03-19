@@ -1,4 +1,16 @@
+//! The lz_fnv crate implements Fowler-Noll-Vo hashing.
+//! 
+//! FNV-0, FNV-1 and FNV-1a hash implementations are supported for various
+//! width integers.
+//! 
+//! The FNV implementations for u64 also implement `Hasher`.
+//!
+//! The crate features available are:
+//! * nightly - For when using a nightly build of rust
+//! * u128 - When not using nightly this uses the extprim crate for its u128 
+//!     type
 #![cfg_attr(feature = "nightly", feature(i128_type))]
+#![deny(missing_docs)]
 
 #[cfg(feature = "extprim")]
 extern crate extprim;
