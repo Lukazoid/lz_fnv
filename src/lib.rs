@@ -1,13 +1,13 @@
 //! The lz_fnv crate implements Fowler-Noll-Vo hashing.
-//! 
+//!
 //! FNV-0, FNV-1 and FNV-1a hash implementations are supported for various
 //! width integers.
-//! 
+//!
 //! The FNV implementations for u64 also implement `Hasher`.
 //!
 //! The crate features available are:
 //! * nightly - For when using a nightly build of rust
-//! * u128 - When not using nightly this uses the extprim crate for its u128 
+//! * u128 - When not using nightly this uses the extprim crate for its u128
 //!     type
 #![cfg_attr(feature = "nightly", feature(i128_type))]
 #![deny(missing_docs)]
@@ -127,16 +127,14 @@ macro_rules! fnv0_impl {
                 self.hash = hash;
             }
         }
-    }
+    };
 }
 
 macro_rules! fnv1_impl {
     ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1<$type> {
             fn default() -> Self {
-                Self {
-                    hash: $offset
-                }
+                Self { hash: $offset }
             }
         }
 
@@ -165,16 +163,14 @@ macro_rules! fnv1_impl {
                 self.hash = hash;
             }
         }
-    }
+    };
 }
 
 macro_rules! fnv1a_impl {
     ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1a<$type> {
             fn default() -> Self {
-                Self {
-                    hash: $offset
-                }
+                Self { hash: $offset }
             }
         }
 
@@ -203,8 +199,7 @@ macro_rules! fnv1a_impl {
                 self.hash = hash;
             }
         }
-
-    }
+    };
 }
 
 macro_rules! fnv_hasher_impl {
@@ -218,7 +213,7 @@ macro_rules! fnv_hasher_impl {
                 ::FnvHasher::write(self, bytes);
             }
         }
-    }
+    };
 }
 macro_rules! fnv_impl {
     (u64, $offset: expr, $prime: expr, $from_byte: ident) => {
@@ -277,8 +272,8 @@ fnv_impl!(
 
 #[cfg(test)]
 mod tests {
-    use {Fnv0, Fnv1, Fnv1a, FnvHasher};
     use std::iter;
+    use {Fnv0, Fnv1, Fnv1a, FnvHasher};
 
     macro_rules! fnv0_tests {
         ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
@@ -341,12 +336,12 @@ mod tests {
     include!("fnv_test_cases.rs");
 
     #[cfg(feature = "u128")]
-    fnv0_tests!{
+    fnv0_tests! {
         fnv0_offset_calculation_extprim_128_bit: ::extprim::u128::u128, b"chongo <Landon Curt Noll> /\\../\\", u128!(0x6C62272E07BB014262B821756295C58D),
     }
 
     #[cfg(feature = "nightly")]
-    fnv0_tests!{
+    fnv0_tests! {
         fnv0_offset_calculation_128_bit: u128, b"chongo <Landon Curt Noll> /\\../\\", 0x6C62272E07BB014262B821756295C58D,
     }
 }
