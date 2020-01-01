@@ -6,10 +6,6 @@ This crate provides Fowler-Noll-Vo implementations for 32-bit, 64-bit and 128-bi
 
 [Documentation](https://docs.rs/lz_fnv)
 
-# Features
-* nightly - For when using a nightly build of rust
-* u128 - When not using nightly this uses the extprim crate for its u128 
-
 # License
 
 This project is licensed under the MIT License ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT).
