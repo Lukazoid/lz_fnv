@@ -1,23 +1,10 @@
 //! The lz_fnv crate implements Fowler-Noll-Vo hashing.
-//! 
+//!
 //! FNV-0, FNV-1 and FNV-1a hash implementations are supported for various
 //! width integers.
-//! 
-//! The FNV implementations for u64 also implement `Hasher`.
 //!
-//! The crate features available are:
-//! * nightly - For when using a nightly build of rust
-//! * u128 - When not using nightly this uses the extprim crate for its u128 
-//!     type
-#![cfg_attr(feature = "nightly", feature(i128_type))]
+//! The FNV implementations for u64 also implement `Hasher`.
 #![deny(missing_docs)]
-
-#[cfg(feature = "extprim")]
-extern crate extprim;
-
-#[cfg(feature = "extprim_literals")]
-#[macro_use]
-extern crate extprim_literals;
 
 /// A trait for all Fowler-Noll-Vo hash implementations.
 ///
@@ -127,16 +114,14 @@ macro_rules! fnv0_impl {
                 self.hash = hash;
             }
         }
-    }
+    };
 }
 
 macro_rules! fnv1_impl {
     ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1<$type> {
             fn default() -> Self {
-                Self {
-                    hash: $offset
-                }
+                Self { hash: $offset }
             }
         }
 
@@ -165,16 +150,14 @@ macro_rules! fnv1_impl {
                 self.hash = hash;
             }
         }
-    }
+    };
 }
 
 macro_rules! fnv1a_impl {
     ($type: ty, $offset: expr, $prime: expr, $from_byte: ident) => {
         impl Default for Fnv1a<$type> {
             fn default() -> Self {
-                Self {
-                    hash: $offset
-                }
+                Self { hash: $offset }
             }
         }
 
@@ -203,8 +186,7 @@ macro_rules! fnv1a_impl {
                 self.hash = hash;
             }
         }
-
-    }
+    };
 }
 
 macro_rules! fnv_hasher_impl {
@@ -218,7 +200,7 @@ macro_rules! fnv_hasher_impl {
                 ::FnvHasher::write(self, bytes);
             }
         }
-    }
+    };
 }
 macro_rules! fnv_impl {
     (u64, $offset: expr, $prime: expr, $from_byte: ident) => {
@@ -246,39 +228,23 @@ fn u64_from_byte(byte: u8) -> u64 {
     byte.into()
 }
 
-fnv_impl!(u32, 0x811c_9dc5, 0x100_0193, u32_from_byte);
-fnv_impl!(u64, 0xcbf2_9ce4_8422_2325, 0x100_0000_01B3, u64_from_byte);
-
-#[cfg(feature = "u128")]
-fn extprim_u128_from_byte(byte: u8) -> extprim::u128::u128 {
-    extprim::u128::u128::new(u64::from(byte))
-}
-
-#[cfg(feature = "u128")]
-fnv_impl!(
-    extprim::u128::u128,
-    u128!(0x6C62272E07BB014262B821756295C58D),
-    u128!(0x0000000001000000000000000000013B),
-    extprim_u128_from_byte
-);
-
-#[cfg(feature = "nightly")]
-fn core_u128_from_byte(byte: u8) -> u128 {
+fn u128_from_byte(byte: u8) -> u128 {
     byte.into()
 }
 
-#[cfg(feature = "nightly")]
+fnv_impl!(u32, 0x811c_9dc5, 0x100_0193, u32_from_byte);
+fnv_impl!(u64, 0xcbf2_9ce4_8422_2325, 0x100_0000_01B3, u64_from_byte);
 fnv_impl!(
     u128,
-    0x6C62272E07BB014262B821756295C58Du128,
-    0x0000000001000000000000000000013Bu128,
-    core_u128_from_byte
+    0x6C62_272E_07BB_0142_62B8_2175_6295_C58D,
+    0x0000_0000_0100_0000_0000_0000_0000_013B,
+    u128_from_byte
 );
 
 #[cfg(test)]
 mod tests {
-    use {Fnv0, Fnv1, Fnv1a, FnvHasher};
     use std::iter;
+    use {Fnv0, Fnv1, Fnv1a, FnvHasher};
 
     macro_rules! fnv0_tests {
         ($($name: ident: $size: ty, $input: expr, $expected_hash: expr,)*) => {
@@ -331,22 +297,12 @@ mod tests {
     }
 
     fn repeat(slice: &[u8], times: usize) -> Vec<u8> {
-        iter::repeat(slice)
-            .take(times)
-            .flat_map(|x| x)
-            .cloned()
-            .collect()
+        iter::repeat(slice).take(times).flatten().cloned().collect()
     }
 
     include!("fnv_test_cases.rs");
 
-    #[cfg(feature = "u128")]
-    fnv0_tests!{
-        fnv0_offset_calculation_extprim_128_bit: ::extprim::u128::u128, b"chongo <Landon Curt Noll> /\\../\\", u128!(0x6C62272E07BB014262B821756295C58D),
-    }
-
-    #[cfg(feature = "nightly")]
-    fnv0_tests!{
-        fnv0_offset_calculation_128_bit: u128, b"chongo <Landon Curt Noll> /\\../\\", 0x6C62272E07BB014262B821756295C58D,
+    fnv0_tests! {
+        fnv0_offset_calculation_128_bit: u128, b"chongo <Landon Curt Noll> /\\../\\", 0x6C62_272E_07BB_0142_62B8_2175_6295_C58D,
     }
 }
